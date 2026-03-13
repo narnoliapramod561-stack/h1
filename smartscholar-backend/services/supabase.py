@@ -4,9 +4,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+url: str = os.getenv("SUPABASE_URL", "")
+key: str = os.getenv("SUPABASE_KEY", "")
 
-def get_supabase():
+supabase: Client | None = None
+
+if url and key:
+    supabase = create_client(url, key)
+
+def get_supabase() -> Client:
+    if supabase is None:
+        raise RuntimeError(
+            "Supabase client is not initialized. "
+            "Please set SUPABASE_URL and SUPABASE_KEY environment variables."
+        )
     return supabase
