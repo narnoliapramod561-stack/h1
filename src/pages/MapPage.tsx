@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { ReactFlow, Background, Controls, MarkerType, useNodesState, useEdgesState } from '@xyflow/react'
+import { ReactFlow, Background, Controls, MarkerType, useNodesState, useEdgesState, type Node, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,8 +20,8 @@ export const MapPage = () => {
   const storeRoadmap = useStudyStore(state => state.roadmap)
   const currentMaterial = useStudyStore(state => state.currentMaterial)
   
-  const [nodes, setNodes, onNodesChange] = useNodesState([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const [selectedNode, setSelectedNode] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 

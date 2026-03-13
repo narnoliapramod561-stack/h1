@@ -7,12 +7,12 @@ import io
 import uuid
 
 router = APIRouter(prefix="/study", tags=["study"])
-db = get_supabase()
 
 # Upload moved to materials.py
 
 @router.get("/roadmap/{material_id}")
 async def get_roadmap(material_id: str, user_id: str = None):
+    db = get_supabase()
     # Fetch topics
     topics_res = db.table("topics").select("*").eq("material_id", material_id).execute()
     
@@ -37,6 +37,7 @@ async def get_roadmap(material_id: str, user_id: str = None):
 
 @router.get("/quiz/{topic_id}")
 async def get_quiz(topic_id: str):
+    db = get_supabase()
     # Check if quiz exists
     existing = db.table("quizzes").select("*").eq("topic_id", topic_id).execute()
     if existing.data:
@@ -63,6 +64,7 @@ async def update_mastery(
     quality: int = Body(...), 
     user_id: str = Body(None)
 ):
+    db = get_supabase()
     # Get current progress
     progress = db.table("topic_progress").select("*").eq("topic_id", topic_id).eq("user_id", user_id).execute()
     

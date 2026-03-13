@@ -84,4 +84,15 @@ export const api = {
     if (!response.ok) throw new Error('Failed to chat with tutor');
     return response.json();
   },
+
+  async updateMastery(topicId: string, quality: number, userId?: string) {
+    const response = await fetch(`${API_BASE_URL}/study/update-mastery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic_id: topicId, quality, user_id: userId }),
+    });
+
+    if (!response.ok) throw new Error('Failed to update mastery');
+    return response.json();
+  },
 };

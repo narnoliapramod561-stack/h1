@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from services.gemini import analyze_syllabus
 from services.supabase import get_supabase
 import pdfplumber
@@ -6,10 +6,9 @@ import io
 import json
 
 router = APIRouter(prefix="/materials", tags=["materials"])
-db = get_supabase()
 
 @router.post("/upload")
-async def upload_material(file: UploadFile = File(...), user_id: str = None):
+async def upload_material(file: UploadFile = File(...), user_id: str = Form(None)):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
     
@@ -32,6 +31,7 @@ async def upload_material(file: UploadFile = File(...), user_id: str = None):
         raise HTTPException(status_code=500, detail=analysis_result["error"])
 
     # 2. Save to Supabase
+    db = get_supabase()
     material_data = {
         "user_id": user_id,
         "filename": file.filename,

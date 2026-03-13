@@ -20,6 +20,8 @@ export const QuizPage = () => {
   const [isFinished, setIsFinished] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [quizId, setQuizId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [userAnswers, setUserAnswers] = useState<number[]>([])
 
   const roadmap = useStudyStore(state => state.roadmap)
   const currentTopic = roadmap[0] // Default to first topic for demo
@@ -34,8 +36,10 @@ export const QuizPage = () => {
         const result = await api.generateQuiz(currentTopic.id)
         setQuestions(result.questions)
         setQuizId(result.quiz_id)
-      } catch (error) {
-        console.error(error)
+        setUserAnswers(new Array(result.questions.length).fill(-1))
+      } catch (err) {
+        console.error(err)
+        setError(err instanceof Error ? err.message : 'Failed to generate quiz. Please try again.')
       } finally {
         setIsLoading(false)
       }
@@ -56,6 +60,12 @@ export const QuizPage = () => {
     if (selectedOption === null || !quizId || !currentTopic) return
     setIsSubmitted(true)
     
+    setUserAnswers(prev => {
+      const updated = [...prev]
+      updated[currentIdx] = selectedOption
+      return updated
+    })
+
     if (selectedOption === question.correct) {
       setScore(s => s + 1)
     }
@@ -69,8 +79,11 @@ export const QuizPage = () => {
       setTimeLeft(30)
     } else {
       if (quizId && currentTopic) {
-        const userAnswers = questions.map((_, i) => i === currentIdx ? selectedOption : -1)
-        await api.submitQuiz(quizId, userAnswers as number[], currentTopic.id)
+        try {
+          await api.submitQuiz(quizId, userAnswers, currentTopic.id)
+        } catch (err) {
+          console.error('Failed to submit quiz:', err)
+        }
       }
       setIsFinished(true)
     }
@@ -94,6 +107,17 @@ export const QuizPage = () => {
         <Link to="/upload">
           <Button>Go to Upload</Button>
         </Link>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20 px-6">
+        <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+        <h2 className="text-2xl font-bold">Quiz Generation Failed</h2>
+        <p className="text-muted-foreground mb-6">{error}</p>
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
       </div>
     )
   }

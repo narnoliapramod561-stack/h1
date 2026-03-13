@@ -6,7 +6,6 @@ from services.sm2 import calculate_next_review
 from typing import List, Optional
 
 router = APIRouter(prefix="/quiz", tags=["quiz"])
-db = get_supabase()
 
 class QuizGenerateRequest(BaseModel):
     topic_id: str
@@ -21,6 +20,7 @@ class QuizSubmitRequest(BaseModel):
 
 @router.post("/generate")
 async def generate_new_quiz(req: QuizGenerateRequest):
+    db = get_supabase()
     # 1. Get Topic Context
     topic_res = db.table("topics").select("label, material_id").eq("id", req.topic_id).single().execute()
     if not topic_res.data:
@@ -46,6 +46,7 @@ async def generate_new_quiz(req: QuizGenerateRequest):
 
 @router.post("/{quiz_id}/submit")
 async def submit_quiz(quiz_id: str, req: QuizSubmitRequest):
+    db = get_supabase()
     # 1. Fetch Quiz
     quiz_res = db.table("quizzes").select("questions").eq("id", quiz_id).single().execute()
     if not quiz_res.data:

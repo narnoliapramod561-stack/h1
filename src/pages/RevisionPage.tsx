@@ -3,19 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Repeat2, Check, Frown, ThumbsUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useStudyStore } from '@/stores/useStudyStore'
+import { useUserStore } from '@/stores/useUserStore'
+import { api } from '@/lib/api'
 
 export const RevisionPage = () => {
   const storeQueue = useStudyStore(state => state.revisionQueue)
+  const user = useUserStore(state => state.user)
   const [queue, setQueue] = useState(storeQueue)
 
   useEffect(() => {
     setQueue(storeQueue)
   }, [storeQueue])
 
-  const handleReview = (id: string, score: number) => {
+  const handleReview = async (id: string, quality: number) => {
     setQueue(prev => prev.filter(q => q.id !== id))
-    // In a real scenario, this would call api.updateMastery
-    console.log(`Topic ${id} reviewed with score ${score}`)
+    try {
+      await api.updateMastery(id, quality, user?.id)
+    } catch (err) {
+      console.error('Failed to persist review:', err)
+    }
   }
 
 

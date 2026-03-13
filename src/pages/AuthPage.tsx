@@ -68,9 +68,9 @@ export const AuthPage = () => {
           setRoadmap(result.analysis.knowledge_graph.nodes)
         } catch (uploadError: any) {
           console.error("Optional upload failed:", uploadError)
-          // We don't block the user if the optional upload fails, 
-          // but we should probably tell them or just log it.
-          // For now, let's just proceed to the dashboard.
+          setError('Syllabus upload failed: ' + (uploadError.message || 'Please try uploading again from the Dashboard.'))
+          setIsLoading(false)
+          return
         }
       }
 
